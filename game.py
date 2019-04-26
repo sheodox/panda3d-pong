@@ -1,5 +1,8 @@
 import sys
-from direct.showbase.ShowBase import ShowBase, loadPrcFileData
+from random import randint
+
+from direct.showbase.ShowBase import loadPrcFileData
+from math import sin, pi, cos
 from panda3d.core import CollisionSphere, CollisionNode, CollisionBox, CollisionTraverser, CollisionHandlerEvent, \
     LVector3f, OrthographicLens, CollisionPlane, Plane, LPoint3f
 
@@ -17,6 +20,10 @@ class Game:
         self.base.accept("escape", sys.exit)  # Escape quits
         self.base.camera.set_pos(0, 0, 90)
         self.base.camera.set_hpr(0, -90, 0)
+        self.scores = {
+            'player': 0,
+            'ai': 0
+        }
         lens = OrthographicLens()
         lens.set_film_size(40 * win_aspect, 40)
         self.base.cam.node().setLens(lens)
@@ -47,8 +54,8 @@ class Game:
         self.base.cTrav.add_collider(cnodePath, self.coll_hand_event)
 
         # ball movement
-        self.ball_v = LVector3f(-.7, 1, 0)
-        self.ball_speed_scale = 0.15
+        self.reset_ball()
+        self.ball_speed_scale = 0.30
         self.base.task_mgr.add(self.ball_move_task, 'ball-move')
 
         # set up boundaries on the top and bottom
@@ -80,11 +87,24 @@ class Game:
 
     def player_side_goal(self, entry):
         print('ai scored')
-        print(entry)
+        self.scores['ai'] += 1
+        self.reset_ball()
 
     def ai_side_goal(self, entry):
         print('player scored')
-        print(entry)
+        self.scores['player'] += 1
+        self.reset_ball()
+
+    def reset_ball(self):
+        side = randint(0, 1)
+        angle = randint(0, 90)
+        angle += side * 180 # possibly flip which player it's going to
+        print(angle)
+        angle = (angle - 45) * (pi / 180)
+
+
+        self.ball_v = LVector3f(cos(angle), sin(angle), 0)
+        self.ball.set_pos((0, 0, 0))
 
     def ball_collision(self, entry):
         norm = entry.get_surface_normal(self.base.render) * -1
