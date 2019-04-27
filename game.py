@@ -6,6 +6,7 @@ from math import sin, pi, cos
 from panda3d.core import CollisionSphere, CollisionNode, CollisionBox, CollisionTraverser, CollisionHandlerEvent, \
     LVector3f, OrthographicLens, CollisionPlane, Plane, LPoint3f
 
+from aicontrols import PongAI
 from gamecontrols import GameControls
 from flymove import FlyMove
 win_w = 1440
@@ -85,6 +86,8 @@ class Game:
         self.base.accept('into-pplane', self.player_side_goal)
         self.base.accept('into-aiplane', self.ai_side_goal)
 
+        self.ai = PongAI(self.base, self.ai_paddle, self.ball, border_distance)
+
     def player_side_goal(self, entry):
         print('ai scored')
         self.scores['ai'] += 1
@@ -99,9 +102,9 @@ class Game:
         side = randint(0, 1)
         angle = randint(0, 90)
         angle += side * 180 # possibly flip which player it's going to
-        print(angle)
         angle = (angle - 45) * (pi / 180)
-
+        self.ai_paddle.set_y(0)
+        print(self.scores)
 
         self.ball_v = LVector3f(cos(angle), sin(angle), 0)
         self.ball.set_pos((0, 0, 0))
