@@ -21,6 +21,6 @@ class PongAI:
         paddle_pos = self.paddle.get_pos()
         delta_pos = ball_pos - paddle_pos
         self.paddle.set_y(
-            min(self.max_y_travel, max(-1 * self.max_y_travel, paddle_pos.y + sin(-1 *delta_pos.y)))
+            min(self.max_y_travel, max(-1 * self.max_y_travel, paddle_pos.y + sin(-1 * delta_pos.y)))
         )
         return task.cont

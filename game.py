@@ -28,7 +28,7 @@ class Game:
         lens = OrthographicLens()
         lens.set_film_size(40 * win_aspect, 40)
         self.base.cam.node().setLens(lens)
-        self.gc = GameControls(self.base, self.move_player, mouse_magnitude=3)
+        self.gc = GameControls(self.base, self.move_player, mouse_magnitude=7)
 
         self.base.disable_mouse()
         # debug camera movement
