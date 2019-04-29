@@ -14,7 +14,8 @@ class PongAI:
 
         self.base.taskMgr.add(self.update, 'ai-move')
 
-        self.base.taskMgr.add(self.update)
+    def stop(self):
+        self.base.task_mgr.remove('ai-move')
 
     def update(self, task):
         ball_pos = self.ball.get_pos()

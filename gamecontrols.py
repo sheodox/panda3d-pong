@@ -9,13 +9,18 @@ class GameControls(DirectObject.DirectObject):
         self.mouse_magnitude = mouse_magnitude
         self.move_fn = move_fn
 
-        props = WindowProperties()
+        self.wp = props = WindowProperties()
         props.set_cursor_hidden(True)
         props.set_mouse_mode(WindowProperties.MRelative)
         self.base.win.requestProperties(props)
 
-        tm = self.base.task_mgr
-        tm.add(self.mouse_move, 'fp-mouse-move')
+        self.mm_task = self.base.task_mgr.add(self.mouse_move, 'fp-mouse-move')
+
+    def stop(self):
+        self.base.task_mgr.remove('fp-mouse-move')
+        self.wp.set_cursor_hidden(False)
+        self.wp.set_mouse_mode(WindowProperties.MAbsolute)
+        self.base.win.requestProperties(self.wp)
 
     def mouse_move(self, task):
         mw = self.base.mouseWatcherNode

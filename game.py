@@ -22,7 +22,8 @@ class Game:
         self.base.accept("escape", sys.exit)  # Escape quits
         self.base.camera.set_pos(0, 0, 90)
         self.base.camera.set_hpr(0, -90, 0)
-        self.score = Scores()
+        self.score = Scores(self.game_end)
+        self.game_ended = False
         lens = OrthographicLens()
         lens.set_film_size(40 * win_aspect, 40)
         self.base.cam.node().setLens(lens)
@@ -86,17 +87,23 @@ class Game:
 
         self.ai = PongAI(self.base, self.ai_paddle, self.ball, border_distance)
 
+    def game_end(self):
+        self.game_ended = True
+        self.gc.stop()
+        self.ai.stop()
+
     def player_side_goal(self, entry):
-        print('ai scored')
         self.score.ai_scored()
         self.reset_ball()
 
     def ai_side_goal(self, entry):
-        print('player scored')
         self.score.player_scored()
         self.reset_ball()
 
     def reset_ball(self):
+        if self.game_ended:
+            return
+
         side = randint(0, 1)
         angle = randint(0, 90)
         angle += side * 180 # possibly flip which player it's going to
