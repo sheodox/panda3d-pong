@@ -8,6 +8,7 @@ from panda3d.core import CollisionSphere, CollisionNode, CollisionBox, Collision
 
 from aicontrols import PongAI
 from gamecontrols import GameControls
+from score import Scores
 from flymove import FlyMove
 win_w = 1440
 win_h = 900
@@ -21,10 +22,7 @@ class Game:
         self.base.accept("escape", sys.exit)  # Escape quits
         self.base.camera.set_pos(0, 0, 90)
         self.base.camera.set_hpr(0, -90, 0)
-        self.scores = {
-            'player': 0,
-            'ai': 0
-        }
+        self.score = Scores()
         lens = OrthographicLens()
         lens.set_film_size(40 * win_aspect, 40)
         self.base.cam.node().setLens(lens)
@@ -90,12 +88,12 @@ class Game:
 
     def player_side_goal(self, entry):
         print('ai scored')
-        self.scores['ai'] += 1
+        self.score.ai_scored()
         self.reset_ball()
 
     def ai_side_goal(self, entry):
         print('player scored')
-        self.scores['player'] += 1
+        self.score.player_scored()
         self.reset_ball()
 
     def reset_ball(self):
@@ -104,7 +102,6 @@ class Game:
         angle += side * 180 # possibly flip which player it's going to
         angle = (angle - 45) * (pi / 180)
         self.ai_paddle.set_y(0)
-        print(self.scores)
 
         self.ball_v = LVector3f(cos(angle), sin(angle), 0)
         self.ball.set_pos((0, 0, 0))
