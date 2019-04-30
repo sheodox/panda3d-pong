@@ -118,6 +118,7 @@ class Game:
         angle += side * 180 # possibly flip which player it's going to
         angle = (angle - 45) * (pi / 180)
         self.ai_paddle.set_y(0)
+        self.player_paddle.set_y(0)
 
         self.ball_v = LVector3f(cos(angle), sin(angle), 0)
         self.ball.set_pos((0, 0, 0))

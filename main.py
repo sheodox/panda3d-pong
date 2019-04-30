@@ -1,6 +1,8 @@
 import sys
 from direct.showbase.ShowBase import ShowBase, loadPrcFileData, NodePath
 from game import Game
+from mainmenu import MainMenu
+
 win_w = 1440
 win_h = 900
 win_aspect = win_w / win_h
@@ -12,9 +14,9 @@ class MyApp(ShowBase):
         ShowBase.__init__(self)
         self.root_node = None
         self.clean_up()
-        self.accept("escape", sys.exit)  # Escape quits
         self.set_background_color(0, 0, 0)
         self.game = Game(self, self.main_menu)
+        self.mm = MainMenu(self, self.start_game)
         self.main_menu()
 
     def clean_up(self):
@@ -25,6 +27,7 @@ class MyApp(ShowBase):
             child.remove_node()
         self.root_node = NodePath('root_node')
         self.root_node.reparent_to(self.render)
+        self.accept("escape", sys.exit)  # Escape quits
 
     def start_game(self):
         self.clean_up()
@@ -32,8 +35,7 @@ class MyApp(ShowBase):
 
     def main_menu(self):
         self.clean_up()
-        self.start_game()
-        # self.main_menu.show()
+        self.mm.show()
 
 app = MyApp()
 app.run()
