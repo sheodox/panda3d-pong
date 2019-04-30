@@ -1,5 +1,5 @@
 import sys
-from direct.showbase.ShowBase import ShowBase, loadPrcFileData
+from direct.showbase.ShowBase import ShowBase, loadPrcFileData, NodePath
 from game import Game
 win_w = 1440
 win_h = 900
@@ -10,9 +10,30 @@ loadPrcFileData('', f'win-size {win_w} {win_h}')
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
+        self.root_node = None
+        self.clean_up()
         self.accept("escape", sys.exit)  # Escape quits
         self.set_background_color(0, 0, 0)
-        self.game = Game(self)
+        self.game = Game(self, self.main_menu)
+        self.main_menu()
+
+    def clean_up(self):
+        self.ignore_all()
+        if self.root_node is not None:
+            self.root_node.remove_node()
+        for child in self.aspect2d.get_children():
+            child.remove_node()
+        self.root_node = NodePath('root_node')
+        self.root_node.reparent_to(self.render)
+
+    def start_game(self):
+        self.clean_up()
+        self.game.run(self.root_node, self.start_game)
+
+    def main_menu(self):
+        self.clean_up()
+        self.start_game()
+        # self.main_menu.show()
 
 app = MyApp()
 app.run()

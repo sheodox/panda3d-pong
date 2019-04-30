@@ -1,11 +1,14 @@
+from direct.gui.DirectButton import DirectButton
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBaseGlobal import aspect2d
 from panda3d.core import TextNode
 
 
 class Scores:
-    def __init__(self, game_end_cb):
+    def __init__(self, game_end_cb, game_quit_cb, game_restart_cb):
         self.game_end_cb = game_end_cb
+        self.game_quit_cb = game_quit_cb
+        self.game_restart_cb = game_restart_cb
         self.win_score = 5
         self.scores = {
             'player': 0,
@@ -23,9 +26,20 @@ class Scores:
 
         self.update_ui()
 
+    def reset(self):
+        self.scores['player'] = 0
+        self.scores['ai'] = 0
+        self.update_ui()
+
     def check_for_winner(self):
-        def show_winner (winner):
+        def show_winner(winner):
             OnscreenText(text=f'{winner} won!', scale=0.2, bg=(0, 0, 0, 0), fg=(1, 1, 1, 1))
+            restart_btn = DirectButton(text=('Restart'), command=self.game_restart_cb)
+            restart_btn.set_pos((0, 0, -0.2))
+            restart_btn.set_scale(0.1)
+            quit_btn = DirectButton(text=('Quit'), command=self.game_quit_cb)
+            quit_btn.set_pos((0, 0, -0.4))
+            quit_btn.set_scale(0.1)
 
         if self.scores['ai'] >= self.win_score:
             show_winner('AI')

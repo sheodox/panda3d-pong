@@ -17,12 +17,17 @@ loadPrcFileData('', f'win-size {win_w} {win_h}')
 
 
 class Game:
-    def __init__(self, base):
+    def __init__(self, base, game_quit_cb):
         self.base = base
+        self.game_quit_cb = game_quit_cb
+
+    def run(self, root_node, restart_scene_cb):
+        self.restart_scene_cb = restart_scene_cb
+        self.root_node = root_node
         self.base.accept("escape", sys.exit)  # Escape quits
         self.base.camera.set_pos(0, 0, 90)
         self.base.camera.set_hpr(0, -90, 0)
-        self.score = Scores(self.game_end)
+        self.score = Scores(self.game_end, self.game_quit_cb, self.restart_game)
         self.game_ended = False
         lens = OrthographicLens()
         lens.set_film_size(40 * win_aspect, 40)
@@ -69,10 +74,10 @@ class Game:
 
         horizontal_distance = 30
         self.player_side_plane = CollisionPlane(Plane(LVector3f(1, 0, 0), LPoint3f(-1 * horizontal_distance, 0, 0)))
-        self.player_side_cnode = self.base.render.attachNewNode(CollisionNode('pplane'))
+        self.player_side_cnode = self.root_node.attachNewNode(CollisionNode('pplane'))
         self.player_side_cnode.node().add_solid(self.player_side_plane)
         self.ai_side_plane = CollisionPlane(Plane(LVector3f(-1, 0, 0), LPoint3f(horizontal_distance, 0, 0)))
-        self.ai_side_cnode = self.base.render.attachNewNode(CollisionNode('aiplane'))
+        self.ai_side_cnode = self.root_node.attachNewNode(CollisionNode('aiplane'))
         self.ai_side_cnode.node().add_solid(self.ai_side_plane)
 
         # add collision to paddles and walls, everything the ball can reflect off of
@@ -89,6 +94,7 @@ class Game:
 
     def game_end(self):
         self.game_ended = True
+        self.base.task_mgr.remove("ball-move")
         self.gc.stop()
         self.ai.stop()
 
@@ -99,6 +105,9 @@ class Game:
     def ai_side_goal(self, entry):
         self.score.player_scored()
         self.reset_ball()
+
+    def restart_game(self):
+        self.restart_scene_cb()
 
     def reset_ball(self):
         if self.game_ended:
@@ -114,7 +123,7 @@ class Game:
         self.ball.set_pos((0, 0, 0))
 
     def ball_collision(self, entry):
-        norm = entry.get_surface_normal(self.base.render) * -1
+        norm = entry.get_surface_normal(self.root_node) * -1
         in_vec = self.ball_v / self.ball_v.length()
         self.ball_v = (norm * norm.dot(in_vec * -1) * 2) + in_vec
 
@@ -127,7 +136,7 @@ class Game:
             model = self.base.loader.loadModelCopy(model_path)
         else:
             model = self.base.loader.loadModel(model_path)
-        model.reparent_to(self.base.render)
+        model.reparent_to(self.root_node)
         return model
 
     def move_player(self, dy):
